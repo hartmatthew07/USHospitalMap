@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Hospital Heat Map</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin=""/>
+         <!-- Make sure you put this AFTER Leaflet's CSS -->
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+    </head>
+    <body>
+        <h1>Hospital Heat Map</h1>
+        <div id="mapid" style="width: 900px; height: 700px;"></div>
+        <script>
+            //set the map variable
+            var hospitalMap = L.map('mapid');
+
+            //pull in hosptial name, and location (x,y) data from json
+            var hospitals = JSON.parse('{{ hosptials_json | tojson | safe}}');
+
+            //create a layer to add hosptial markers too
+            var hospitalMarkerLayer = L.layerGroup();
+
+            //set onload function and view
+            hospitalMap.on('load', markHospitals).setView([42.0325, -92.09], 3);
+
+            // Create tile layer
+            var googleSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+                maxZoom: 20,
+                subdomains:['mt0','mt1','mt2','mt3']
+            }).addTo(hospitalMap);
+
+            function markHospitals(){
+                for(i = 0; i < hospitals.length; i++){
+                    
+                    var hospitalMarker = L.marker([hospitals[i].LATITUDE,hospitals[i].LONGITUDE],{
+
+                    });
+
+                    hospitalMarker.bindPopup(
+                        "Latitude: " + hospitals[i].LATITUDE
+                        + "<br>Longitude: " + hospitals[i].LONGITUDE +
+                        "<br>Name: " + hospitals[i].NAME
+                    );
+                    // add hosptialMarker to the hosptialMarkerLayer to later be placed on the map
+                    hospitalMarkerLayer.addLayer(hospitalMarker);
+                }
+                //once all hospital markers have been added to the layer add that layer on the map.
+                hospitalMarkerLayer.addTo(hospitalMap);
+            }
+
+        </script>
+    </body>
+</html>
